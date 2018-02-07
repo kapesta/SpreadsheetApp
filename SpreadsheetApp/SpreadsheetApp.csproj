@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Data.cs" />
     <Compile Include="Operations.cs" />
+    <Compile Include="Operator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgramLoop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

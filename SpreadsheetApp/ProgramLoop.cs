@@ -1,70 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpreadsheetApp
 {
-    class ProgramLoop
+    internal class ProgramLoop
     {
         public void Run()
         {
+            var operations = new Operations();
+            ;
             Console.WriteLine("Type numbers separated by char | and ; as end.");
-            GetDataFromUser();
+          //  operations.GetDataFromUser();
             Console.WriteLine("Expression:");
-            var exp = Console.ReadLine();
-            GetDataToExpression(exp);
-        }
-        private void GetDataFromUser()
-        {  
-            string inputString;
-            bool isEnd;
-            do
-            {
-                inputString = Console.ReadLine();
-                isEnd = inputString.Contains(";");
-                if (isEnd)
+            //  var exp = Console.ReadLine();
+            //  operations.GetDataToExpression(exp);
+            Data.Numbers
+                .Add(new List<double>
                 {
-                    inputString = inputString.Remove(inputString.IndexOf(';'));
-                }
-
-                if (inputString.LastIndexOf('|') == inputString.Length - 1)
+                    11,12,13,14,15
+                });
+            Data.Numbers
+                .Add(new List<double>
                 {
-                    inputString = inputString.Remove(inputString.Length - 1);
-                }
-                var separatedString = inputString.Split('|');
+                    21,22,23,24,25
+                });
 
-                AddNumbersToData(separatedString);
-                
-            } while (!isEnd);
+            var expression = "A1 + A2 * (A3 +B3)";
+            var numbersExpression = operations.GetDataToExpression(expression);
+            operations.ConvertExpresionToRpn("((2+7)/3+(14-3)*4)/2");
         }
+       
 
-        private void AddNumbersToData(string[] separatedString)
-        {
-            var listOfDoubles = new List<double>();
-            for (int i = 0; i < separatedString.Length; i++)
-            {
-                listOfDoubles.Add(double.Parse(separatedString[i]));
-            }
-            Data.Numbers.Add(listOfDoubles);
-        }
-
-        private List<double> GetDataToExpression(string expression)
-        {
-            var dataList = expression.Split(new char[] { '+', '*', '-', '/' });
-            var result = new List<double>();
-
-            for (int i = 0; i < dataList.Length; i++)
-            {
-                var argument = dataList[i].ToUpper();
-                int intArgument = (int)argument[0] - 65;
-                var row = Data.Numbers[intArgument];
-                var number = row[int.Parse(argument.Substring(1))-1];
-                result.Add(number);
-            }
-            return result;
-        }
+       
     }
 
 }
