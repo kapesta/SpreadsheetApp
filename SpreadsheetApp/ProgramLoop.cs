@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SpreadsheetApp
 {
@@ -9,30 +8,21 @@ namespace SpreadsheetApp
         public void Run()
         {
             var operations = new Operations();
-            ;
+            
             Console.WriteLine("Type numbers separated by char | and ; as end.");
-          //  operations.GetDataFromUser();
+            operations.GetDataFromUser();
             Console.WriteLine("Expression:");
-            //  var exp = Console.ReadLine();
-            //  operations.GetDataToExpression(exp);
-            Data.Numbers
-                .Add(new List<double>
-                {
-                    11,12,13,14,15
-                });
-            Data.Numbers
-                .Add(new List<double>
-                {
-                    21,22,23,24,25
-                });
+            var exp = Console.ReadLine();
 
-            var expression = "A1 + A2 * (A3 +B3)";
-            var numbersExpression = operations.GetDataToExpression(expression);
-            operations.ConvertExpresionToRpn("((2+7)/3+(14-3)*4)/2");
+
+            operations.ConvertDataExpressionsToNumbers();
+
+            var numbersExpression = operations.GetDataToExpression(exp);
+            var rpnTable = operations.ConvertExpresionToRpn(numbersExpression);
+            var result = operations.CalculateRpn(rpnTable);
+            Console.WriteLine($"Result: {result}");
+            Console.ReadLine();
         }
-       
-
-       
     }
 
 }

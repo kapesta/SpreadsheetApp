@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -26,24 +26,26 @@ namespace SpreadsheetApp
                     inputString = inputString.Remove(inputString.Length - 1);
                 }
                 var separatedString = inputString.Split('|');
+                var noCommaList = new List<string>();
+                separatedString.ToList().ForEach(s => noCommaList.Add(s.Replace(",",".")));
+                
 
-                AddNumbersToData(separatedString);
+                AddNumbersToData(noCommaList);
 
             } while (!isEnd);
         }
 
         private void AddNumbersToData(IEnumerable<string> separatedString)
         {
-            var listOfDoubles = separatedString.Select(double.Parse).ToList();
-            Data.Numbers.Add(listOfDoubles);
+            Data.Numbers.Add(separatedString.ToList());
         }
 
         public string GetDataToExpression(string expression)
         {
             var regex = new Regex("[A-Za-z]\\d+");
-            var matches = regex.Matches(expression);
+            var match = regex.Match(expression);
 
-            foreach (Match match in matches)
+            while (match.Success)
             {
                 var stringBuilder = new StringBuilder(expression);
 
@@ -56,7 +58,22 @@ namespace SpreadsheetApp
                 stringBuilder.Insert(match.Index, number);
 
                 expression = stringBuilder.ToString();
+                match = regex.Match(expression);
             }
+            //foreach (Match match in matches)
+            //{
+            //    var stringBuilder = new StringBuilder(expression);
+
+            //    var rowMarkerAsInt = match.Value[0] - 65;
+            //    var column = int.Parse(match.Value.Substring(1)) - 1;
+            //    var row = Data.Numbers[rowMarkerAsInt];
+            //    var number = row[column];
+                
+            //    stringBuilder.Remove(match.Index, match.Length);
+            //    stringBuilder.Insert(match.Index, number);
+
+            //    expression = stringBuilder.ToString();
+            //}
 
             return expression;
         }
@@ -128,8 +145,71 @@ namespace SpreadsheetApp
             {
                 output.Add(stack.Pop());
             }
-
             return output;
         }
+
+        public double CalculateRpn(IEnumerable<string> inputData)
+        {
+            var stack = new Stack<string>();            
+            var numberRegex = new Regex(@"(^\d+\.\d*|\.?\d+$)");
+            foreach (var token in inputData)
+            {
+                if (numberRegex.IsMatch(token))
+                {
+                    stack.Push(token);
+                }
+                else
+                {
+                    if (stack.Count > 1)
+                    {
+                        var a = Convert.ToDouble(stack.Pop());
+                        var b = Convert.ToDouble(stack.Pop());
+                        double result = 0;
+                        switch (token)
+                        {
+                            case "+":
+                                result = a + b;
+                                break;
+                            case "-":
+                                result = b - a;
+                                break;
+                            case "*":
+                                result = a * b;
+                                break;
+                            case "/":
+                                result = b / a;
+                                break;
+                            case "^":
+                                result = Math.Pow(b, a);
+                                break;
+                        }
+                        stack.Push(result.ToString(CultureInfo.InvariantCulture));
+                    }
+                }
+            }
+
+            return Convert.ToDouble(stack.Pop());
+        }
+
+        public void ConvertDataExpressionsToNumbers()
+        {
+            for (var i = 0; i < Data.Numbers.Count; i++)
+            {
+                for (var j = 0; j < Data.Numbers[i].Count; j++)
+                {
+                    var stringNumber = Data.Numbers[i][j].ToString();
+                    var numberRegex = new Regex("[A-z]");
+                    // var numberRegex = new Regex(@"(^\d+\.\d*|\.?\d+$)");
+                    if (numberRegex.IsMatch(stringNumber))
+                    {
+                        var numbersExpression = GetDataToExpression(stringNumber);
+                        var rpnTable = ConvertExpresionToRpn(numbersExpression);
+                        var result = CalculateRpn(rpnTable);
+                        Data.Numbers[i][j] = result.ToString();
+                    }
+                }
+            }
+        }
     }
+
 }

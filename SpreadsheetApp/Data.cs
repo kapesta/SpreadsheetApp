@@ -4,6 +4,6 @@ namespace SpreadsheetApp
 {
     public class Data
     {
-        public static List<List<double>> Numbers = new List<List<double>>();
+        public static List<List<string>> Numbers = new List<List<string>>();
     }
 }
